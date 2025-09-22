@@ -1,0 +1,49 @@
+name: Frontend CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Setup Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          cd travel_booking_frontend-master
+          npm install
+
+      # Step 4: Run tests
+      - name: Run tests
+        run: |
+          cd travel_booking_frontend-master
+          npm test -- --watchAll=false
+
+      # Step 5: Build frontend
+      - name: Build frontend
+        run: |
+          cd travel_booking_frontend-master
+          npm run build
+
+      # Step 6: Upload build artifact
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: travel_booking_frontend-master/build
