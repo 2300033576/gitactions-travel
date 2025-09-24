@@ -1,17 +1,18 @@
-name: Frontend CI
+name: Frontend CI & Deploy
 
-# Trigger workflow on push or pull request to main branch
+# Trigger only on push to main branch
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  build-frontend:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: travel_booking_frontend-master
 
     steps:
       # Step 1: Checkout the repo
@@ -26,23 +27,15 @@ jobs:
 
       # Step 3: Install dependencies
       - name: Install dependencies
-        run: |
-          cd travel_booking_frontend-master
-          npm install
+        run: npm install
 
-      # Step 4: Skip tests (Jest fails in CI)
-      - name: Skip tests
-        run: echo "Skipping frontend tests in CI"
-
-      # Step 5: Build frontend (ignore warnings in CI)
+      # Step 4: Build the project
       - name: Build frontend
-        run: |
-          cd travel_booking_frontend-master
-          CI=false npm run build
+        run: npm run build
 
-      # Step 6: Upload build artifact
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+      # Step 5: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v6
         with:
-          name: frontend-build
-          path: travel_booking_frontend-master/build
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build
